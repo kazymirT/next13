@@ -1,8 +1,8 @@
+import { Suspense } from "react";
+import { notFound } from 'next/navigation'
 import getUser from "@/lib/getUser";
 import getUserPosts from "@/lib/getUserPosts";
-import { Suspense } from "react";
 import UserPosts from "./components/UserPosts/UserPosts";
-import { Metadata } from "next";
 import getAllUsers from "@/lib/getAllUsers";
 
 type Params = Promise<{ id: string }>
@@ -17,6 +17,12 @@ export async function generateMetadata(props: {
   const userData: Promise<UserType> = getUser(id);
 
   const user = await userData;
+
+  if (!user.name) {
+    return {
+      title: 'User Not Found',
+    }
+  }
   return {
     title: user.name || '',
     description: `Page of user ${user.name || ''}`,
@@ -34,6 +40,10 @@ export default async function UserPage(props: {
   const postsData: Promise<PostType[]> = getUserPosts(id);
 
   const user = await userData;
+
+  if (!user.name) {
+    return notFound();
+  }
   return (
     <>
       <h2>{user.name}</h2>
